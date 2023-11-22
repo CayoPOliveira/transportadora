@@ -149,21 +149,21 @@ def read_caminhoes_api():
 @app.put("/caminhoes/")
 async def update_caminhao_api(request_caminhao: Request_Caminhao):
     try:
-        caminhao = session.query(Caminhao).filter(Caminhao.id == request_caminhao_id).first()
+        caminhao = session.query(Caminhao).filter(Caminhao.id == request_caminhao.id).first()
         original_caminhao = Caminhao(
-            id = caminhao.id,
-            modelo = caminhao.modelo,
+            id               = caminhao.id,
+            modelo           = caminhao.modelo,
             capacidade_carga = caminhao.capacidade_carga,
-            localizacao = caminhao.localizacao,
-            status = caminhao.status,
-            motorista = caminhao.motorista
+            localizacao      = caminhao.localizacao,
+            status           = caminhao.status,
+            motorista        = caminhao.motorista
         )
 
-        caminhao.modelo = request_caminhao.modelo
+        caminhao.modelo           = request_caminhao.modelo
         caminhao.capacidade_carga = request_caminhao.capacidade_carga
-        caminhao.localizacao = request_caminhao.localizacao
-        caminhao.status = request_caminhao.status
-        caminhao.motorista = request_caminhao.motorista
+        caminhao.localizacao      = request_caminhao.localizacao
+        caminhao.status           = request_caminhao.status
+        caminhao.motorista        = request_caminhao.motorista
 
         session.commit()
         session.refresh(caminhao)
@@ -175,7 +175,7 @@ async def update_caminhao_api(request_caminhao: Request_Caminhao):
     except Exception as e:
         return{
             "status": "NOT SUCESS",
-            "data": "ITEM NÃO ENCONTRADO",
+            "data": "CAMINHAO NÃO ENCONTRADO",
             "error": e
         }
 
@@ -224,10 +224,10 @@ def read_clientes_api():
         "data": session.query(Cliente).all()
     }
 
-@app.put("/clientes/{cliente_id}")
+@app.put("/clientes/")
 async def update_cliente_api(request_cliente: Request_Cliente):
     try:
-        cliente = session.query(Cliente).filter(read_clientes_api.id == request_cliente.id).first()
+        cliente = session.query(Cliente).filter(Cliente.id == request_cliente.id).first()
         original_cliente = Cliente(
             id          = cliente.id,
             nome        = cliente.nome,
@@ -350,9 +350,9 @@ def delete_pedido_api(pedido_id: int):
 #     uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
 
 # Abrindo guias para monitoramento
-import webbrowser
-import time
-time.sleep(3)
-webbrowser.open('localhost:8080', new=2)
-time.sleep(5)
-webbrowser.open('localhost:8000', new=2)
+# import webbrowser
+# import time
+# time.sleep(3)
+# webbrowser.open('localhost:8080', new=2)
+# time.sleep(5)
+# webbrowser.open('localhost:8000/docs/', new=2)
