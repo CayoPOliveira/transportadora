@@ -50,9 +50,9 @@ def api_is_running():
 @app.post("/items/")
 def create_item_api(item: Request_Item):
     session_item = Item(
-        nome = item.nome,
-        descricao = item.descricao,
-        peso = item.peso
+        nome        = item.nome,
+        descricao   = item.descricao,
+        peso        = item.peso
     )
     session.add(session_item)
     session.commit()
@@ -63,14 +63,14 @@ def create_item_api(item: Request_Item):
     }
 
 @app.get("/items/{item_id}")
-def read_items_api(item_id: int):
+def read_itens_api(item_id: int):
     return {
         "status": "SUCESS",
         "data": session.query(Item).filter(Item.id == item_id).first()
     }
 
 @app.get("/items/")
-def read_items_api():
+def read_itens_api():
     return {
         "status": "SUCESS",
         "data": session.query(Item).all()
@@ -81,14 +81,15 @@ async def update_item_api(request_item: Request_Item):
     try:
         item = session.query(Item).filter(Item.id == request_item.id).first()
         original_item = Item(
-            id = item.id,
-            nome = item.nome,
-            descricao = item.descricao,
-            peso = item.peso
+            id          = item.id,
+            nome        = item.nome,
+            descricao   = item.descricao,
+            peso        = item.peso
         )
-        item.nome = request_item.nome
-        item.descricao = request_item.descricao
-        item.peso = request_item.peso
+
+        item.nome       = request_item.nome
+        item.descricao  = request_item.descricao
+        item.peso       = request_item.peso
 
         session.commit()
         session.refresh(item)
@@ -114,39 +115,81 @@ def delete_item_api(item_id: int):
         "data": item
     }
 
-# # ========================================================================================
-# # Caminhao CRUD
-# @app.post("/caminhoes/", response_model=Caminhao)
-# def create_caminhao_api(caminhao: Caminhao):
-#     session_caminhao = Caminhao(**caminhao.dict())
-#     session.add(session_caminhao)
-#     session.commit()
-#     session.refresh(session_caminhao)
-#     return session_caminhao
+# ========================================================================================
+# Caminhao CRUD
+@app.post("/caminhoes/")
+def create_caminhao_api(caminhao: Request_Caminhao):
+    session_caminhao = Caminhao(
+        modelo              = caminhao.modelo,
+        capacidade_carga    = caminhao.capacidade_carga,
+        localizacao         = caminhao.localizacao,
+        status              = caminhao.status,
+        motorista           = caminhao.motorista
+    )
+    session.add(session_caminhao)
+    session.commit()
+    session.refresh(session_caminhao)
+    return {
+        "status": "SUCESS",
+        "data": session_caminhao
+    }
 
-# @app.get("/caminhoes/{caminhao_id}", response_model=Caminhao)
-# def read_caminhao_api(caminhao_id: int):
-#     return session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
+@app.get("/caminhoes/{caminhao_id}")
+def read_caminhoes_api(caminhao_id: int):
+    return {
+        "status": "SUCESS",
+        "data": session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
+    }
 
-# @app.get("/caminhoes/", response_model=List[Caminhao])
-# def read_caminhoes_api(skip: int = 0, limit: int = 100):
-#     return session.query(Caminhao).offset(skip).limit(limit).all()
+@app.get("/caminhoes/")
+def read_caminhoes_api():
+    return {
+        "status": "SUCESS",
+        "data": session.query(Caminhao).all()
+    }
 
-# @app.put("/caminhoes/{caminhao_id}", response_model=Caminhao)
-# def update_caminhao_api(caminhao_id: int, caminhao: Caminhao):
-#     session_caminhao = session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
-#     for field, value in caminhao.dict().items():
-#         setattr(session_caminhao, field, value)
-#     session.commit()
-#     session.refresh(session_caminhao)
-#     return session_caminhao
+@app.put("/caminhoes/")
+async def update_caminhao_api(request_caminhao: Request_Caminhao):
+    try:
+        caminhao = session.query(Caminhao).filter(Caminhao.id == request_caminhao_id).first()
+        original_caminhao = Caminhao(
+            id = caminhao.id,
+            modelo = caminhao.modelo,
+            capacidade_carga = caminhao.capacidade_carga,
+            localizacao = caminhao.localizacao,
+            status = caminhao.status,
+            motorista = caminhao.motorista
+        )
 
-# @app.delete("/caminhoes/{caminhao_id}", response_model=Caminhao)
-# def delete_caminhao_api(caminhao_id: int):
-#     session_caminhao = session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
-#     session.delete(session_caminhao)
-#     session.commit()
-#     return session_caminhao
+        caminhao.modelo = request_caminhao.modelo
+        caminhao.capacidade_carga = request_caminhao.capacidade_carga
+        caminhao.localizacao = request_caminhao.localizacao
+        caminhao.status = request_caminhao.status
+        caminhao.motorista = request_caminhao.motorista
+
+        session.commit()
+        session.refresh(caminhao)
+        return {
+            "status": "SUCESS",
+            "original": original_caminhao,
+            "data": caminhao
+        }
+    except Exception as e:
+        return{
+            "status": "NOT SUCESS",
+            "data": "ITEM NÃO ENCONTRADO",
+            "error": e
+        }
+
+@app.delete("/caminhoes/{caminhao_id}")
+def delete_caminhao_api(caminhao_id: int):
+    caminhao = session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
+    session.delete(caminhao)
+    session.commit()
+    return {
+        "status": "SUCESS",
+        "data": caminhao
+    }
 
 # # ========================================================================================
 # # Cliente CRUD
