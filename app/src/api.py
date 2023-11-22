@@ -47,9 +47,10 @@ def api_is_running():
 # Item CRUD
 @app.post("/items/")
 def create_item_api(item: Request_Item):
-    session_item = Item(nome = item.nome,
-                        descricao = item.descricao,
-                        peso = item.peso
+    session_item = Item(
+        nome = item.nome,
+        descricao = item.descricao,
+        peso = item.peso
     )
     session.add(session_item)
     session.commit()
@@ -73,21 +74,43 @@ def read_items_api():
         "data": session.query(Item).all()
     }
 
-# @app.put("/items/{item_id}", response_model=Item)
-# def update_item_api(item_id: int, item: Item):
-#     session_item = session.query(Item).filter(Item.id == item_id).first()
-#     for field, value in item.dict().items():
-#         setattr(session_item, field, value)
-#     session.commit()
-#     session.refresh(session_item)
-#     return session_item
+@app.put("/items/")
+async def update_item_api(request_item: Request_Item):
+    try:
+        item = session.query(Item).filter(Item.id == request_item.id).first()
+        original_item = Item(
+            id = item.id,
+            nome = item.nome,
+            descricao = item.descricao,
+            peso = item.peso
+        )
+        item.nome = request_item.nome
+        item.descricao = request_item.descricao
+        item.peso = request_item.peso
 
-# @app.delete("/items/{item_id}", response_model=Item)
-# def delete_item_api(item_id: int):
-#     session_item = session.query(Item).filter(Item.id == item_id).first()
-#     session.delete(session_item)
-#     session.commit()
-#     return session_item
+        session.commit()
+        session.refresh(item)
+        return {
+            "status": "SUCESS",
+            "original": original_item,
+            "data": item
+        }
+    except Exception as e:
+        return{
+            "status": "NOT SUCESS",
+            "data": "ITEM NÃO ENCONTRADO",
+            "error": e
+        }
+
+@app.delete("/items/{item_id}")
+def delete_item_api(item_id: int):
+    item = session.query(Item).filter(Item.id == item_id).first()
+    session.delete(item)
+    session.commit()
+    return {
+        "status": "SUCESS",
+        "data": item
+    }
 
 # # ========================================================================================
 # # Caminhao CRUD
