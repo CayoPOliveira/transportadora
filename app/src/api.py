@@ -186,6 +186,7 @@ async def update_cliente_api(request_cliente: Request_Cliente):
     try:
         cliente = session.query(Cliente).filter(read_clientes_api.id == request_cliente.id).first()
         original_cliente = Cliente(
+            id          = cliente.id,
             nome        = cliente.nome,
             telefone    = cliente.telefone,
             cpf         = cliente.cpf,
@@ -262,6 +263,7 @@ def update_pedido_api(request_pedido: Request_Pedido):
     try:
         pedido = session.query(Pedido).filter(Pedido.id == request_pedido.id).first()
         original_pedido = Pedido(
+            id          = pedido.id,
             quantidade  = pedido.quantidade,
             status      = pedido.status,
             cliente_id  = pedido.cliente_id,
