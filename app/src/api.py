@@ -4,8 +4,6 @@ from pydantic import BaseModel
 from typing import List
 from models import session, Item, Caminhao, Cliente, Pedido
 
-
-
 # API ========================================================
 class Request_Item(BaseModel):
     id: int
@@ -149,48 +147,92 @@ def delete_item_api(item_id: int):
 #     return session_caminhao
 
 # # ========================================================================================
-# # Cliente CRUD
-# @app.post("/clientes/", response_model=Cliente)
-# def create_cliente_api(cliente: Cliente):
-#     session_cliente = Cliente(**cliente.dict())
-#     session.add(session_cliente)
-#     session.commit()
-#     session.refresh(session_cliente)
-#     return session_cliente
+# Cliente CRUD
+@app.post("/clientes/")
+def create_cliente_api(cliente: Request_Cliente):
+    session_cliente = Cliente(
+        nome        = cliente.nome,
+        telefone    = cliente.telefone,
+        cpf         = cliente.cpf,
+        cep         = cliente.cep,
+        numero      = cliente.numero,
+        complemento = cliente.complemento
+    )
 
-# @app.get("/clientes/{cliente_id}", response_model=Cliente)
-# def read_cliente_api(cliente_id: int):
-#     return session.query(Cliente).filter(Cliente.id == cliente_id).first()
+    session.add(session_cliente)
+    session.commit()
+    session.refresh(session_cliente)
+    return {
+        "status": "SUCESS",
+        "data": session_cliente
+    }
 
-# @app.get("/clientes/", response_model=List[Cliente])
-# def read_clientes_api(skip: int = 0, limit: int = 100):
-#     return session.query(Cliente).offset(skip).limit(limit).all()
+@app.get("/clientes/{cliente_id}")
+def read_clientes_api(cliente_id: int):
+    return {
+        "status": "SUCESS",
+        "data": session.query(Cliente).filter(Cliente.id == cliente_id).first()
+    }
 
-# @app.put("/clientes/{cliente_id}", response_model=Cliente)
-# def update_cliente_api(cliente_id: int, cliente: Cliente):
-#     session_cliente = session.query(Cliente).filter(Cliente.id == cliente_id).first()
-#     for field, value in cliente.dict().items():
-#         setattr(session_cliente, field, value)
-#     session.commit()
-#     session.refresh(session_cliente)
-#     return session_cliente
+@app.get("/clientes/")
+def read_clientes_api():
+    return {
+        "status": "SUCESS",
+        "data": session.query(Cliente).all()
+    }
 
-# @app.delete("/clientes/{cliente_id}", response_model=Cliente)
-# def delete_cliente_api(cliente_id: int):
-#     session_cliente = session.query(Cliente).filter(Cliente.id == cliente_id).first()
-#     session.delete(session_cliente)
-#     session.commit()
-#     return session_cliente
+@app.put("/clientes/{cliente_id}")
+async def update_cliente_api(request_cliente: Request_Cliente):
+    try:
+        cliente = session.query(Cliente).filter(read_clientes_api.id == request_cliente.id).first()
+        original_cliente = Cliente(
+            nome        = cliente.nome,
+            telefone    = cliente.telefone,
+            cpf         = cliente.cpf,
+            cep         = cliente.cep,
+            numero      = cliente.numero,
+            complemento = cliente.complemento
+        )
+        cliente.nome        = request_cliente.nome,
+        cliente.telefone    = request_cliente.telefone,
+        cliente.cpf         = request_cliente.cpf,
+        cliente.cep         = request_cliente.cep,
+        cliente.numero      = request_cliente.numero,
+        cliente.complemento = request_cliente.complemento
+
+        session.commit()
+        session.refresh(cliente)
+        return {
+            "status": "SUCESS",
+            "original": original_cliente,
+            "data": cliente
+        }
+    except Exception as e:
+        return{
+            "status": "NOT SUCESS",
+            "data": "CLIENTE NÃO ENCONTRADO",
+            "error": e
+        }
+
+@app.delete("/clientes/{cliente_id}")
+def delete_cliente_api(cliente_id: int):
+    cliente = session.query(Cliente).filter(Cliente.id == cliente_id).first()
+    session.delete(cliente)
+    session.commit()
+    return {
+        "status": "SUCESS",
+        "data": cliente
+    }
 
 # # ========================================================================================
 # Pedido CRUD
 @app.post("/pedidos/")
 def create_pedido_api(pedido: Request_Pedido):
     session_pedido = Pedido(
-        quantidade = pedido.quantidade,
-        status = pedido.status,
-        cliente_id = pedido.cliente_id,
-        item_id = pedido.item_id,
+        quantidade  = pedido.quantidade,
+        status      = pedido.status,
+        cliente_id  = pedido.cliente_id,
+        item_id     = pedido.item_id,
         caminhao_id = pedido.caminhao_id,
     )
     session.add(session_pedido)
@@ -215,21 +257,46 @@ def read_pedidos_api():
         "data": session.query(Pedido).all()
     }
 
-# @app.put("/pedidos/{pedido_id}", response_model=Pedido)
-# def update_pedido_api(pedido_id: int, pedido: Pedido):
-#     session_pedido = session.query(Pedido).filter(Pedido.id == pedido_id).first()
-#     for field, value in pedido.dict().items():
-#         setattr(session_pedido, field, value)
-#     session.commit()
-#     session.refresh(session_pedido)
-#     return session_pedido
+@app.put("/pedidos/")
+def update_pedido_api(request_pedido: Request_Pedido):
+    try:
+        pedido = session.query(Pedido).filter(Pedido.id == request_pedido.id).first()
+        original_pedido = Pedido(
+            quantidade  = pedido.quantidade,
+            status      = pedido.status,
+            cliente_id  = pedido.cliente_id,
+            item_id     = pedido.item_id,
+            caminhao_id = pedido.caminhao_id
+        )
+        pedido.quantidade   = request_pedido.quantidade,
+        pedido.status       = request_pedido.status,
+        pedido.cliente_id   = request_pedido.cliente_id,
+        pedido.item_id      = request_pedido.item_id,
+        pedido.caminhao_id  = request_pedido.caminhao_id
 
-# @app.delete("/pedidos/{pedido_id}", response_model=Pedido)
-# def delete_pedido_api(pedido_id: int):
-#     session_pedido = session.query(Pedido).filter(Pedido.id == pedido_id).first()
-#     session.delete(session_pedido)
-#     session.commit()
-#     return session_pedido
+        session.commit()
+        session.refresh(pedido)
+        return {
+            "status": "SUCESS",
+            "original": original_pedido,
+            "data": pedido
+        }
+    except Exception as e:
+        return{
+            "status": "NOT SUCESS",
+            "data": "PEDIDO NÃO ENCONTRADO",
+            "error": e
+        }
+
+@app.delete("/pedidos/{pedido_id}")
+def delete_pedido_api(pedido_id: int):
+    pedido = session.query(Pedido).filter(Pedido.id == pedido_id).first()
+    session.delete(pedido)
+    session.commit()
+    return {
+        "status": "SUCESS",
+        "data": pedido
+    }
 
 # # ========================================================================================
 # # MAIN
@@ -237,7 +304,7 @@ def read_pedidos_api():
 #     import uvicorn
 #     uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
 
-# abrindo guias
+# Abrindo guias para monitoramento
 import webbrowser
 import time
 time.sleep(3)
