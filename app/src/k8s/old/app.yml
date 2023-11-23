@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
         - name: app-container
-          image: app-transportadora
+          image: transportadora-app:1.1
           ports:
             - containerPort: 8000
           env:
             - name: PS_DATABASE_URL
-              value: postgresql+psycopg2://admin:***@localhost:5432/postgres
+              value: postgresql://admin:admin@localhost:5432
           envFrom:
           - configMapRef:
               name: postgres-config
