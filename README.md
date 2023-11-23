@@ -17,5 +17,5 @@ cd app/src/
 Execute a api
 
 ```
-uvicorn api:app --host localhost --port 8000 --reload
+uvicorn publisher:app --host localhost --port 8000 --reload
 ```
