@@ -12,7 +12,7 @@ def callback(ch, method, properties, body):
     tabela = message_data.get("tabela")
     dados = message_data.get("dados")
 
-    print(f"RabbitMQ\n{tipo=}\n{tabela=}\n{dados=}\n")
+    print(f"\nRabbitMQ\n{tipo=}\n{tabela=}\n{dados=}")
 
     if tabela == "itens":
         retorno = processa_itens(tipo, dados)
@@ -195,16 +195,17 @@ async def subscriber():
 
     channel.start_consuming()
 
-TIME_INTERVAL_IN_SEC = 5
+def app():
+    TIME_INTERVAL_IN_SEC = 5
 
-async def crawl_websites():
-    while True:
-        try:
-            await subscriber()
-            await asyncio.sleep(TIME_INTERVAL_IN_SEC)
-        except Exception as e:
-            pass
+    async def crawl_websites():
+        while True:
+            try:
+                await subscriber()
+                await asyncio.sleep(TIME_INTERVAL_IN_SEC)
+            except Exception as e:
+                pass
 
-loop = asyncio.get_event_loop()
-task = loop.create_task(crawl_websites())
-loop.run_until_complete(task)
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(crawl_websites())
+    loop.run_until_complete(task)
