@@ -14,8 +14,14 @@ Navegue até o diretório app/src/
 cd app/src/
 ```
 
-Execute a api
+Execute o publisher
 
 ```
 uvicorn publisher:app --host localhost --port 8000 --reload
+```
+
+Em outro terminal execute o subscriber
+
+```
+uvicorn subscriber:app --host localhost --port 8001 --reload
 ```
