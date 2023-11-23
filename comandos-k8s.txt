@@ -14,20 +14,19 @@ na pasta do projeto:
     minikube addons enable metrics-server 
         -> para habilitar as métricas do k8 
         
-    sudo docker buildx build --no-cache -t transportadora-app:1.1 . 
+    sudo docker buildx build --no-cache -t app-transportadora . 
         -> criar imagem do docker
        
-    sudo docker run -d --name app-container transportadora-app:1.1
+    sudo docker run -d --name app-transportadora app-transportadora
 
     cd ..
     
     cd k8s
 
-    minikube kubectl -- create -f postgres-config.yml                  
-        -> criar aplicação dentro da pasta /k8s
-    
-    minikube kubectl -- create -f app.yml                                          
-        -> criar aplicação dentro da pasta /k8s
+    minikube kubectl -- create -f postgres.yml  
+    minikube kubectl -- create -f postgres-service.yml
+    minikube kubectl -- create -f adminer.yml   
+    minikube kubectl -- create -f rabbitmq.yml       
     
     minikube kubectl -- port-forward --address=0.0.0.0 service/app-service 8000:8000 & 
         -> portforward nao ta funcionando
