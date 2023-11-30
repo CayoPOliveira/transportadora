@@ -41,7 +41,6 @@ minikube dashboard
 
 minikube service publisher-service
 minikube service adminer-service
-minikube service subscriber-service
 minikube service rabbitmq-service
 
 ALTERAR OS IPS DOS ARQUIVOS models.py, subscriber.py e publisher.py

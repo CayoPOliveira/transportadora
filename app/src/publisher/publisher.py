@@ -36,14 +36,36 @@ class Request_Pedido(BaseModel):
     item_id: int
     caminhao_id: int
 
-app = FastAPI()
+description = """
+**Adminer:** [adminer.io](http://192.168.58.2:30000)
+
+**Dashboard:** [kubernetes.dashboard.io](http://127.0.0.1:43187/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
+"""
+
+tags_metadata = [
+    {"name":"Get"},
+    {"name":"Post"},
+    {"name":"Put"},
+    {"name":"Delete"},
+    {"name":"Itens"},
+    {"name":"Caminhões"},
+    {"name":"Clientes"},
+    {"name":"Pedidos"}
+]
+
+app = FastAPI(
+    title="TransportadoraAPI",
+    version="2.0",
+    description=description,
+    openapi_tags=tags_metadata
+)
 
 # ========================================================================================
 
 # PUBLISHER
 async def publish_message(tipo: str, tabela: str, message: str):
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters('10.104.231.8'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters('10.99.236.228'))
         channel = connection.channel()
         channel.queue_declare(queue='transportadora_queue')
 
@@ -61,12 +83,12 @@ async def publish_message(tipo: str, tabela: str, message: str):
 
 # ========================================================================================
 
-@app.get("/")
+@app.get("/", tags=["Default"])
 async def api_is_running():
     return {"status": "API IS RUNNING"}
 
 # Item CRUD
-@app.post("/items/")
+@app.post("/items/", tags=["Itens", "Post"])
 async def create_item_api(request_item: Request_Item):
     try:
         # Publica a mensagem no RabbitMQ
@@ -81,21 +103,21 @@ async def create_item_api(request_item: Request_Item):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.get("/items/{item_id}")
+@app.get("/items/{item_id}", tags=["Itens", "Get"])
 async def read_itens_api(item_id: int):
     return {
         "status": "SUCESS",
         "data": session.query(Item).filter(Item.id == item_id).first()
     }
 
-@app.get("/items/")
+@app.get("/items/", tags=["Itens", "Get"])
 async def read_itens_api():
     return {
         "status": "SUCESS",
         "data": session.query(Item).all()
     }
 
-@app.put("/items/")
+@app.put("/items/", tags=["Itens", "Put"])
 async def update_item_api(request_item: Request_Item):
     try:
         # Publica a mensagem no RabbitMQ
@@ -110,7 +132,7 @@ async def update_item_api(request_item: Request_Item):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.delete("/items/{item_id}")
+@app.delete("/items/{item_id}", tags=["Itens", "Delete"])
 async def delete_item_api(item_id: int):
     item = session.query(Item).filter(Item.id == item_id).first()
     session.delete(item)
@@ -122,7 +144,7 @@ async def delete_item_api(item_id: int):
 
 # ========================================================================================
 # Caminhao CRUD
-@app.post("/caminhoes/")
+@app.post("/caminhoes/", tags=["Caminhões",  "Post"])
 async def create_caminhao_api(request_caminhao: Request_Caminhao):
     try:
         # Publica a mensagem no RabbitMQ
@@ -137,21 +159,21 @@ async def create_caminhao_api(request_caminhao: Request_Caminhao):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.get("/caminhoes/{caminhao_id}")
+@app.get("/caminhoes/{caminhao_id}", tags=["Caminhões", "Get"])
 async def read_caminhoes_api(caminhao_id: int):
     return {
         "status": "SUCESS",
         "data": session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
     }
 
-@app.get("/caminhoes/")
+@app.get("/caminhoes/", tags=["Caminhões", "Get"])
 async def read_caminhoes_api():
     return {
         "status": "SUCESS",
         "data": session.query(Caminhao).all()
     }
 
-@app.put("/caminhoes/")
+@app.put("/caminhoes/", tags=["Caminhões", "Put"])
 async def update_caminhao_api(request_caminhao: Request_Caminhao):
     try:
         # Publica a mensagem no RabbitMQ
@@ -166,7 +188,7 @@ async def update_caminhao_api(request_caminhao: Request_Caminhao):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.delete("/caminhoes/{caminhao_id}")
+@app.delete("/caminhoes/{caminhao_id}", tags=["Caminhões", "Delete"])
 async def delete_caminhao_api(caminhao_id: int):
     caminhao = session.query(Caminhao).filter(Caminhao.id == caminhao_id).first()
     session.delete(caminhao)
@@ -178,7 +200,7 @@ async def delete_caminhao_api(caminhao_id: int):
 
 # # ========================================================================================
 # Cliente CRUD
-@app.post("/clientes/")
+@app.post("/clientes/", tags=["Clientes",  "Post"])
 async def create_cliente_api(request_cliente: Request_Cliente):
     try:
         # Publica a mensagem no RabbitMQ
@@ -193,21 +215,21 @@ async def create_cliente_api(request_cliente: Request_Cliente):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.get("/clientes/{cliente_id}")
+@app.get("/clientes/{cliente_id}", tags=["Clientes", "Get"])
 async def read_clientes_api(cliente_id: int):
     return {
         "status": "SUCESS",
         "data": session.query(Cliente).filter(Cliente.id == cliente_id).first()
     }
 
-@app.get("/clientes/")
+@app.get("/clientes/", tags=["Clientes", "Get"])
 async def read_clientes_api():
     return {
         "status": "SUCESS",
         "data": session.query(Cliente).all()
     }
 
-@app.put("/clientes/")
+@app.put("/clientes/", tags=["Clientes", "Put"])
 async def update_cliente_api(request_cliente: Request_Cliente):
     try:
         # Publica a mensagem no RabbitMQ
@@ -222,7 +244,7 @@ async def update_cliente_api(request_cliente: Request_Cliente):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.delete("/clientes/{cliente_id}")
+@app.delete("/clientes/{cliente_id}", tags=["Clientes", "Delete"])
 async def delete_cliente_api(cliente_id: int):
     cliente = session.query(Cliente).filter(Cliente.id == cliente_id).first()
     session.delete(cliente)
@@ -234,7 +256,7 @@ async def delete_cliente_api(cliente_id: int):
 
 # # ========================================================================================
 # Pedido CRUD
-@app.post("/pedidos/")
+@app.post("/pedidos/", tags=["Pedidos",  "Post"])
 async def create_pedido_api(request_pedido: Request_Pedido):
     try:
         # Publica a mensagem no RabbitMQ
@@ -249,21 +271,21 @@ async def create_pedido_api(request_pedido: Request_Pedido):
             "log":  f"Erro ao publicar mensagem: {e}"
         }
 
-@app.get("/pedidos/{pedido_id}")
+@app.get("/pedidos/{pedido_id}", tags=["Pedidos", "Get"])
 async def read_pedidos_api(pedido_id: int):
     return {
         "status": "SUCESS",
         "data": session.query(Pedido).filter(Pedido.id == pedido_id).first()
     }
 
-@app.get("/pedidos/")
+@app.get("/pedidos/", tags=["Pedidos", "Get"])
 async def read_pedidos_api():
     return {
         "status": "SUCESS",
         "data": session.query(Pedido).all()
     }
 
-@app.put("/pedidos/")
+@app.put("/pedidos/", tags=["Pedidos", "Put"])
 async def update_pedido_api(request_pedido: Request_Pedido):
     try:
         # Publica a mensagem no RabbitMQ
@@ -308,7 +330,7 @@ async def update_pedido_api(request_pedido: Request_Pedido):
             "error": e
         }
 
-@app.delete("/pedidos/{pedido_id}")
+@app.delete("/pedidos/{pedido_id}", tags=["Pedidos", "Delete"])
 async def delete_pedido_api(pedido_id: int):
     pedido = session.query(Pedido).filter(Pedido.id == pedido_id).first()
     session.delete(pedido)

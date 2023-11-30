@@ -34,6 +34,7 @@ spec:
           value: guest
         - name: RABBITMQ_DEFAULT_PASS
           value: guest
+        imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service

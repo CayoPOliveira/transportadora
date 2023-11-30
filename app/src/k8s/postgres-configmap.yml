@@ -8,4 +8,4 @@ data:
   POSTGRES_DB: postgres
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: admin
-  POSTGRES_URL: postgresql+psycopg2://admin:admin@10.101.98.159:5432
+  POSTGRES_URL: postgresql+psycopg2://admin:admin@10.110.77.17:5432
